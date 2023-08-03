@@ -17,10 +17,19 @@ class VideoModel(db.Model):
     def __repr__(self):
         return f"Video(name= {self.name}, views= {self.views}, likes= {self.likes})"
 
+
+# arguments to be passed to insert data into database
 video_put_args = reqparse.RequestParser()
 video_put_args.add_argument("name", type=str, help="Name of the video", required=True)
 video_put_args.add_argument("likes", type=int, help="Likes of the video", required=True)
 video_put_args.add_argument("views", type=int, help="Views of the video", required=True)
+
+# arguments to be passed to update data in the database
+video_update = reqparse.RequestParser()
+video_update.add_argument("name", type=str, help="Name of the video", required=False)
+video_update.add_argument("likes", type=int, help="Likes of the video", required=False)
+video_update.add_argument("views", type=int, help="Views of the video", required=False)
+
 
 resource_fields = {
     "_id": fields.Integer,
@@ -53,6 +62,24 @@ class Video(Resource):
             # show 404 error message if id is not found in database
             abort(404, message="Video not found") 
         return result
+    
+    @marshal_with(resource_fields)
+    def patch(self, video_id):
+        result = VideoModel.query.filter_by(_id=video_id).first()
+        if not result:
+            # show 404 error message if id is not found in database
+            abort(404, message="Video not found, nothing to update")
+        args = video_update.parse_args()
+
+        if args['views']:
+            result.likes = args["views"]
+        if args['likes']:
+            result.likes = args["likes"]
+        if args['name']:
+            result.name = args["name"]
+        
+        db.session.commit()
+        return result 
 
 api.add_resource(Video, "/video/<int:video_id>")
 
