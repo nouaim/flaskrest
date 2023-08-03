@@ -35,7 +35,7 @@ class Video(Resource):
         result = VideoModel.query.filter_by(_id=video_id).first()
         ## to avoid server crash when trying to create an identical video
         if result:
-            # through a 409 error when the video already exists
+            # throw a 409 error when the video already exists
             abort(409, message="Video already exists")
         args = video_put_args.parse_args()
         video = VideoModel(
@@ -49,6 +49,9 @@ class Video(Resource):
     @marshal_with(resource_fields)
     def get(self, video_id):
         result = VideoModel.query.filter_by(_id=video_id).first()
+        if not result:
+            # show 404 error message if id is not found in database
+            abort(404, message="Video not found") 
         return result
 
 api.add_resource(Video, "/video/<int:video_id>")

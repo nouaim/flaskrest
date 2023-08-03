@@ -12,3 +12,8 @@ input()
 response = requests.get(f"{BASE}/video/33")
 
 print(response.json())
+
+input()
+response = requests.get(f"{BASE}/video/39")
+
+print(response.json())
