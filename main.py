@@ -8,6 +8,7 @@ api = Api(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 db = SQLAlchemy(app)
 
+
 class VideoModel(db.Model):
     _id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -38,6 +39,7 @@ resource_fields = {
     "likes": fields.Integer,
 }
 
+
 class Video(Resource):
     @marshal_with(resource_fields)
     def put(self, video_id):
@@ -60,9 +62,9 @@ class Video(Resource):
         result = VideoModel.query.filter_by(_id=video_id).first()
         if not result:
             # show 404 error message if id is not found in database
-            abort(404, message="Video not found") 
+            abort(404, message="Video not found")
         return result
-    
+
     @marshal_with(resource_fields)
     def patch(self, video_id):
         result = VideoModel.query.filter_by(_id=video_id).first()
@@ -71,15 +73,16 @@ class Video(Resource):
             abort(404, message="Video not found, nothing to update")
         args = video_update.parse_args()
 
-        if args['views']:
+        if args["views"]:
             result.likes = args["views"]
-        if args['likes']:
+        if args["likes"]:
             result.likes = args["likes"]
-        if args['name']:
+        if args["name"]:
             result.name = args["name"]
-        
+
         db.session.commit()
-        return result 
+        return result
+
 
 api.add_resource(Video, "/video/<int:video_id>")
 
